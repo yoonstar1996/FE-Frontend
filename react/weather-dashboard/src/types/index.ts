@@ -82,10 +82,10 @@ export interface ForecastDay {
     totalsnow_cm: number;
     uv: number;
   };
-  hour: hourlyData[];
+  hour: HourlyData[];
 }
 
-export interface hourlyData {
+export interface HourlyData {
   chance_of_rain: number;
   chance_of_snow: number;
   cloud: number;
@@ -162,11 +162,19 @@ export interface ForecastTideDay {
       }
     ];
   };
-  hour: hourlyData[];
+  hour: HourlyData[];
 }
 
 export interface Tide {
   tide_height_mt: string;
   tide_time: string;
-  tide_type: string;
+  tide_type: "HIGH" | "LOW";
+}
+
+export interface WeatherInfo {
+  maxTemp: number;
+  minTemp: number;
+  date: string;
+  iconCode: string;
+  isDay: boolean;
 }

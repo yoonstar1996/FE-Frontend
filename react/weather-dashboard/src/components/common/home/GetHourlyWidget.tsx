@@ -6,7 +6,7 @@ import {
   CardTitle,
   GetHourWidget,
 } from "@/components";
-import { ForecastDay, hourlyData } from "@/types";
+import { ForecastDay, HourlyData } from "@/types";
 
 interface Props {
   data: ForecastDay;
@@ -27,8 +27,8 @@ function GetHourlyWidget({ data }: Props) {
       </CardHeader>
 
       <CardContent className="w-full flex items-center gap-4 overflow-x-auto">
-        {data.hour.map((item: hourlyData, i) => (
-          <GetHourWidget key={i} item={item} />
+        {data.hour.map((item: HourlyData) => (
+          <GetHourWidget key={item.time} item={item} />
         ))}
       </CardContent>
     </Card>

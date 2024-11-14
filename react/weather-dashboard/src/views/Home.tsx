@@ -9,7 +9,7 @@ import {
   Get7DaysWidget,
 } from "@/components";
 import { useEffect, useState } from "react";
-import { Weather } from "@/types";
+import { ForecastDay, ForecastTideDay, Weather } from "@/types";
 
 const defaultWeatherData: Weather = {
   current: {
@@ -55,33 +55,120 @@ const defaultWeatherData: Weather = {
   },
   forecast: { forecastday: [] },
 };
+
+const defaultTideData: ForecastTideDay = {
+  astro: {
+    is_moon_up: 0,
+    is_sun_up: 0,
+    moon_illumination: 0,
+    moon_phase: "",
+    moonrise: "",
+    moonset: "",
+    sunrise: "",
+    sunset: "",
+  },
+  date: "",
+  date_epoch: 0,
+  day: {
+    avghumidity: 0,
+    avgtemp_c: 0,
+    avgtemp_f: 0,
+    avgvis_km: 0,
+    avgvis_miles: 0,
+    condition: { text: "", icon: "", code: 0 },
+    daily_chance_of_rain: 0,
+    daily_chance_of_snow: 0,
+    daily_will_it_rain: 0,
+    daily_will_it_snow: 0,
+    maxtemp_c: 0,
+    maxtemp_f: 0,
+    maxwind_kph: 0,
+    maxwind_mph: 0,
+    mintemp_c: 0,
+    mintemp_f: 0,
+    totalprecip_in: 0,
+    totalprecip_mm: 0,
+    totalsnow_cm: 0,
+    uv: 0,
+    tides: [
+      {
+        tide: [],
+      },
+    ],
+  },
+  hour: [],
+};
+
 const API_KEY = "679ced49a6f542d4a7004717241411";
-const BASE_URL = "http://api.weatherapi.com/v1";
+const BASE_URL = "https://api.weatherapi.com/v1";
 
 export default function HomePage() {
-  const [weatherData, setWeatherData] = useState(defaultWeatherData);
+  const [weatherData, setWeatherData] = useState<Weather>(defaultWeatherData);
+  const [tideData, setTideData] = useState<ForecastTideDay>(defaultTideData);
+  const [oneWeek, setOneWeek] = useState([]);
 
-  const fetchApi = async () => {
+  const fetchForecastApi = async () => {
     try {
       // Promise 인스턴스 방법을 사용했을 땐, resolve에 해당
       const res = await axios.get(
         `${BASE_URL}/forecast.json?q=seoul&days=7&key=${API_KEY}`
       );
-      console.log(res);
       if (res.status === 200) {
         setWeatherData(res.data);
+        // console.log("fetchForecastApi: ", res);
       }
     } catch (error) {
       // Promise 인스턴스 방법을 사용했을 땐, reject에 해당
       console.log("error: ", error);
     } finally {
       // 비동기 로직이 성공 or 실패 여부와 상관없이 무조건 실행되는 코드
-      console.log("fetchApi 호출은 되었습니다.");
+      // console.log("fetchForecastApi 호출은 되었습니다.");
+    }
+  };
+
+  const fetchTideApi = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/marine.json?q=seoul&days=1&key=${API_KEY}`
+      );
+      if (res.status === 200) {
+        setTideData(res.data.forecast.forecastday[0]);
+        // console.log("fetchTideApi: ", res.data.forecast.forecastday[0]);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  const fetchWeatherApi = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/forecast.json?q=seoul&days=7&key=${API_KEY}`
+      );
+      if (res.status === 200 && res.data) {
+        const newData = res.data.forecast.forecastday.map(
+          (item: ForecastDay) => {
+            return {
+              maxTemp: Math.round(item.day.maxtemp_c),
+              minTemp: Math.round(item.day.mintemp_c),
+              date: item.date,
+              iconCode: item.day.condition.code,
+              isDay: item.day.condition.icon.includes("day"),
+            };
+          }
+        );
+        setOneWeek(newData);
+        // console.log("fetchWeatherApi: ", res.data.forecast);
+      }
+    } catch (error) {
+      console.log("error: ", error);
     }
   };
 
   useEffect(() => {
-    fetchApi();
+    fetchForecastApi();
+    fetchTideApi();
+    fetchWeatherApi();
   }, []);
 
   return (
@@ -97,8 +184,13 @@ export default function HomePage() {
           </div>
           {/** 하단의 2개 위젯 */}
           <div className="w-full flex items-center gap-6">
-            <GetTodaysHighlightsWidget />
-            <Get7DaysWidget />
+            {tideData && (
+              <GetTodaysHighlightsWidget
+                tideData={tideData}
+                currentData={weatherData}
+              />
+            )}
+            <Get7DaysWidget data={oneWeek} />
           </div>
         </div>
       </div>

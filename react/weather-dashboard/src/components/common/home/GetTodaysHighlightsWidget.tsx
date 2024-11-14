@@ -8,58 +8,20 @@ import {
   GetWaveWidget,
   GetMarineAndSailingWidget,
 } from "@/components";
+import { Weather, Tide, ForecastTideDay } from "@/types";
 
-const MarineDatas = [
-  {
-    label: "만조",
-    time: "05:48",
-    symbol: "am",
-  },
-  {
-    label: "간조",
-    time: "11:56",
-    symbol: "am",
-  },
-  {
-    label: "만조",
-    time: "18:04",
-    symbol: "pm",
-  },
-  {
-    label: "간조",
-    time: "00:12",
-    symbol: "pm",
-  },
-];
+interface Props {
+  tideData: ForecastTideDay;
+  currentData: Weather;
+}
 
-const weatherDatas = [
-  {
-    labelKo: "습도",
-    labelEn: "Humidity",
-    imgUrl: "src/assets/icons/Humidity.svg",
-    num: 64,
-  },
-  {
-    labelKo: "기압",
-    labelEn: "Pressure",
-    imgUrl: "src/assets/icons/Wind.svg",
-    num: 1024,
-  },
-  {
-    labelKo: "가시거리",
-    labelEn: "Visibility",
-    imgUrl: "src/assets/icons/Fog.svg",
-    num: 10,
-  },
-  {
-    labelKo: "체감온도",
-    labelEn: "Feels Like",
-    imgUrl: "src/assets/icons/Hot.svg",
-    num: 19,
-  },
-];
+function GetTodaysHighlightsWidget({ tideData, currentData }: Props) {
+  const updatedTideData = tideData.day.tides;
 
-function GetTodaysHighlightsWidget() {
+  if (!tideData || !currentData) {
+    return <div>데이터를 불러오는 중입니다..</div>;
+  }
+
   return (
     <Card className="flex-1 h-full">
       <CardHeader>
@@ -79,6 +41,7 @@ function GetTodaysHighlightsWidget() {
                 </span>
               </CardDescription>
             </CardHeader>
+
             <CardContent className="w-full flex items-center justify-between">
               <img
                 className="h-14"
@@ -86,7 +49,7 @@ function GetTodaysHighlightsWidget() {
                 alt="highlights-image"
               />
               <div className="w-fit grid grid-cols-4 gap-3">
-                {MarineDatas.map((data, index) => (
+                {updatedTideData[0].tide.map((data: Tide, index: number) => (
                   <GetMarineAndSailingWidget
                     key={index}
                     data={data}
@@ -96,6 +59,7 @@ function GetTodaysHighlightsWidget() {
               </div>
             </CardContent>
           </Card>
+
           <Card className="w-full bg-neutral-100">
             <CardHeader>
               <CardDescription className="font-semibold text-neutral-700">
@@ -109,20 +73,41 @@ function GetTodaysHighlightsWidget() {
               <GetSunriseAndSunset
                 imgUrl="src/assets/icons/1000d.svg"
                 label="Sunrise"
-                time="07:00 AM"
+                time={tideData.astro.sunrise}
               />
               <GetSunriseAndSunset
                 imgUrl="src/assets/icons/1000n.svg"
                 label="Sunset"
-                time="05:34 PM"
+                time={tideData.astro.sunset}
               />
             </CardContent>
           </Card>
         </div>
         <div className="w-full grid grid-cols-4 gap-5">
-          {weatherDatas.map((data, idx) => (
-            <GetWaveWidget key={idx} data={data} />
-          ))}
+          <GetWaveWidget
+            labelKo="습도"
+            labelEn="Humidity"
+            imgUrl="src/assets/icons/Humidity.svg"
+            value={currentData.current.humidity}
+          />
+          <GetWaveWidget
+            labelKo="기압"
+            labelEn="Pressure"
+            imgUrl="src/assets/icons/Wind.svg"
+            value={currentData.current.pressure_mb}
+          />
+          <GetWaveWidget
+            labelKo="가시거리"
+            labelEn="Visibility"
+            imgUrl="src/assets/icons/fog.svg"
+            value={currentData.current.vis_km}
+          />
+          <GetWaveWidget
+            labelKo="체감온도"
+            labelEn="Feels Like"
+            imgUrl="src/assets/icons/Hot.svg"
+            value={currentData.current.feelslike_c}
+          />
         </div>
       </CardContent>
     </Card>

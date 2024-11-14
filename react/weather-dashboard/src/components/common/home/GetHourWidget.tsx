@@ -1,9 +1,9 @@
 import { Card } from "@/components";
 import useFormattedTime from "@/hooks/useFormattedTime";
-import { hourlyData } from "@/types";
+import { HourlyData } from "@/types";
 
 interface Props {
-  item: hourlyData;
+  item: HourlyData;
 }
 
 function GetHourWidget({ item }: Props) {
