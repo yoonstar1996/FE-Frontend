@@ -10,6 +10,8 @@ import {
 } from "@/components";
 import { useEffect, useState } from "react";
 import { ForecastDay, ForecastTideDay, Weather } from "@/types";
+import { useAtom } from "jotai";
+import { cityNameAtom } from "@/stores";
 
 const defaultWeatherData: Weather = {
   current: {
@@ -106,12 +108,13 @@ export default function HomePage() {
   const [weatherData, setWeatherData] = useState<Weather>(defaultWeatherData);
   const [tideData, setTideData] = useState<ForecastTideDay>(defaultTideData);
   const [oneWeek, setOneWeek] = useState([]);
+  const [cityName] = useAtom(cityNameAtom);
 
   const fetchForecastApi = async () => {
     try {
       // Promise 인스턴스 방법을 사용했을 땐, resolve에 해당
       const res = await axios.get(
-        `${BASE_URL}/forecast.json?q=seoul&days=7&key=${API_KEY}`
+        `${BASE_URL}/forecast.json?q=${cityName}&days=7&key=${API_KEY}`
       );
       if (res.status === 200) {
         setWeatherData(res.data);
@@ -129,7 +132,7 @@ export default function HomePage() {
   const fetchTideApi = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/marine.json?q=seoul&days=1&key=${API_KEY}`
+        `${BASE_URL}/marine.json?q=${cityName}&days=1&key=${API_KEY}`
       );
       if (res.status === 200) {
         setTideData(res.data.forecast.forecastday[0]);
@@ -143,7 +146,7 @@ export default function HomePage() {
   const fetchWeatherApi = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/forecast.json?q=seoul&days=7&key=${API_KEY}`
+        `${BASE_URL}/forecast.json?q=${cityName}&days=7&key=${API_KEY}`
       );
       if (res.status === 200 && res.data) {
         const newData = res.data.forecast.forecastday.map(
@@ -151,7 +154,7 @@ export default function HomePage() {
             return {
               maxTemp: Math.round(item.day.maxtemp_c),
               minTemp: Math.round(item.day.mintemp_c),
-              date: item.date,
+              date: item.date_epoch,
               iconCode: item.day.condition.code,
               isDay: item.day.condition.icon.includes("day"),
             };
@@ -169,7 +172,7 @@ export default function HomePage() {
     fetchForecastApi();
     fetchTideApi();
     fetchWeatherApi();
-  }, []);
+  }, [cityName]);
 
   return (
     <div className="page">

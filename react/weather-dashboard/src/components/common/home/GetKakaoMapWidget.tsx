@@ -1,7 +1,8 @@
 import { Card } from "@/components";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 import useKakaoLoader from "@/hooks/useKakaoLoader";
-import { useState } from "react";
+import { useAtom } from "jotai";
+import { cityNameAtom } from "@/stores";
 
 const positions = [
   {
@@ -40,7 +41,7 @@ const positions = [
 
 function GetKakaoMapWidget() {
   useKakaoLoader();
-  const [cityName, setCityName] = useState("seoul");
+  const [, setCityName] = useAtom(cityNameAtom);
 
   return (
     <Card className="w-1/4 min-w-[25%] h-full">
@@ -64,8 +65,7 @@ function GetKakaoMapWidget() {
             title={position.cityName} // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다
             clickable={true}
             onClick={(marker) => {
-              // setCityName(marker.getTitle());
-              console.log(marker.getTitle());
+              setCityName(marker.getTitle());
             }}
           />
         ))}

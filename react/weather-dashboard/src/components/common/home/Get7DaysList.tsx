@@ -4,6 +4,21 @@ interface Props {
   data: WeatherInfo;
 }
 
+function formatDate(epoch: number) {
+  const date = new Date(epoch * 1000); // Convert seconds to milliseconds
+  const day = date.toLocaleString("en-EN", { day: "2-digit" }); // Get the day
+  const month = date.toLocaleString("en-EN", { month: "short" }); // Get the month (abbreviated)
+
+  return `${day} ${month}`; // Return formatted string
+}
+
+function formatDay(epoch: number) {
+  const date = new Date(epoch * 1000); // Convert seconds to milliseconds
+  const weekday = date.toLocaleString("ko-KR", { weekday: "long" }); // Get the day of the week
+
+  return weekday;
+}
+
 function Get7DaysList({ data }: Props) {
   return (
     <div className="w-full flex items-center gap-7 bg-neutral-100 py-0 px-3 rounded-sm">
@@ -36,7 +51,12 @@ function Get7DaysList({ data }: Props) {
         </div>
       </div>
       <div className="flex flex-1 items-center justify-end gap-5 mb-1">
-        <small className="text-sm leading-none">{data.date}</small>
+        <small className="text-sm leading-none">
+          {formatDate(Number(data.date))}
+        </small>
+        <small className="text-sm leading-none">
+          {formatDay(Number(data.date))}
+        </small>
       </div>
     </div>
   );
