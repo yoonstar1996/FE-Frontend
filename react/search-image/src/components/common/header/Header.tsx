@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./Header.module.scss";
 import {
   Avatar,
@@ -10,10 +10,16 @@ import {
 import { BookMarked } from "lucide-react";
 
 function Header() {
+  const navigate = useNavigate();
+
+  const handleClickBookmarkLink = () => {
+    navigate("/bookmark");
+  };
+
   return (
     <header className={styles.header}>
       <div className={styles[`header__logo-box`]}>
-        <Link to={"/bookmark"}>
+        <Link to={"/"}>
           <img
             src="src/assets/logo.svg"
             alt=""
@@ -23,7 +29,7 @@ function Header() {
       </div>
       <div className={styles[`header__user-box`]}>
         {/* 북마크 버튼 */}
-        <Button variant={"secondary"}>
+        <Button variant={"secondary"} onClick={handleClickBookmarkLink}>
           <BookMarked />
           북마크
         </Button>
