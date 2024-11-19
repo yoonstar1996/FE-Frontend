@@ -1,6 +1,6 @@
 import { Header } from "@/components/common";
 import { ImageCard } from "@/components/home";
-import { removeBookmark } from "@/components/utils";
+import { getBookmarks, removeBookmark } from "@/components/utils";
 import { Image } from "@/types";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -8,11 +8,6 @@ import { useLocation } from "react-router-dom";
 function BookmarkPage() {
   const { pathname } = useLocation();
   const [bookmarks, setBookmarks] = useState<Image[]>([]);
-
-  const getBookmarks = () => {
-    const bookmarks = localStorage.getItem("bookmark");
-    return bookmarks ? JSON.parse(bookmarks) : [];
-  };
 
   const handleRemoveBookmark = (id: number) => {
     const confirm = window.confirm("북마크를 삭제하시겠습니까?");

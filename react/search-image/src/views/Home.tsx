@@ -9,8 +9,9 @@ import { fetchApi, pageAtom, searchValueAtom } from "@/store";
 function HomePage() {
   const [images, setImages] = useState<Image[]>([]);
 
-  const [page] = useAtom<number>(pageAtom);
+  const [page, setPage] = useAtom<number>(pageAtom);
   const [searchValue] = useAtom<string>(searchValueAtom);
+  const [totalPages, setTotalPages] = useState(1);
 
   const newFetchApi = useCallback(async () => {
     try {
@@ -18,6 +19,7 @@ function HomePage() {
 
       if (res.status === 200 && res.data) {
         setImages(res.data.results);
+        setTotalPages(res.data.total_pages);
       }
     } catch (error) {
       console.log(error);
@@ -43,7 +45,11 @@ function HomePage() {
         {/* <Pagination /> */}
 
         {/* shardcn ui pagination 컴포넌트 */}
-        <PaginationFooter />
+        <PaginationFooter
+          totalPages={totalPages}
+          currentPage={page}
+          handlePage={setPage}
+        />
       </div>
     </div>
   );

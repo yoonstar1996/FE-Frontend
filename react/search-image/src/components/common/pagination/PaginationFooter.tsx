@@ -1,68 +1,133 @@
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
-import { useAtom } from "jotai";
-import { pageAtom } from "@/store";
+} from "@/components/ui";
+import { useEffect, useState } from "react";
 
-const ITEMS_PER_PAGE = 30; // 한 페이지당 항목 수
-const TOTAL_ITEMS = 10000; // 전체 데이터 수
-const TOTAL_PAGES = Math.ceil(TOTAL_ITEMS / ITEMS_PER_PAGE); // 전체 페이지 수
-const PAGE_GROUP_SIZE = 5; // 한 번에 표시할 페이지 버튼 개수
+interface Props {
+  totalPages: number;
+  currentPage: number;
+  handlePage: (page: number) => void; // 페이지 변경 시 호출될 함수
+}
 
-function PaginationFooter() {
-  const [page, setPage] = useAtom(pageAtom);
+function PaginationFooter({ totalPages, currentPage, handlePage }: Props) {
+  const [pages, setPages] = useState<number[]>([]);
 
-  // 현재 페이지 그룹 계산
-  const currentGroup = Math.ceil(page / PAGE_GROUP_SIZE);
-  const startPage = (currentGroup - 1) * PAGE_GROUP_SIZE + 1;
-  const endPage = Math.min(currentGroup * PAGE_GROUP_SIZE, TOTAL_PAGES);
+  useEffect(() => {
+    setPages([...Array.from({ length: totalPages }, (_, idx) => idx + 1)]);
+  }, [totalPages]);
 
-  // 페이지 변경 핸들러
-  const handlePageChange = (newPage: number) => {
-    if (newPage >= 1 && newPage <= TOTAL_PAGES) {
-      setPage(newPage);
+  const renderPaginationItems = () => {
+    const visiblePages = 5; // 표시할 페이지의 개수 (예: 양쪽 끝 + 현재 페이지 근처)
+    const pageNumbers: number[] = [];
+
+    /** 페이지가 적으면 모두 표시 */
+    if (totalPages <= visiblePages) {
+      return pages;
+    } else {
+      /** 보여질 페이지가 많은 경우에는 특정 범위만 표시 */
+      if (currentPage <= 3) {
+        /** 처음 3페이지 정도는 Ellipsis 없이 표시*/
+        pageNumbers.push(...pages.slice(0, visiblePages)); // 배열의 첫 번째 요소부터, visiblePages 요소까지 잘라냄
+
+        if (totalPages > visiblePages) {
+          pageNumbers.push(totalPages); // 마지막 페이지
+        }
+      } else if (currentPage >= totalPages - 3) {
+        /** 마지막 3페이지 정도는 Ellipsis 없이 표시
+         * slice(start): start 인덱스부터 배열의 끝까지 잘라냅니다.
+         * slice(start, end): start 인덱스부터 end 인덱스 직전까지 잘라냅니다. 즉, end는 포함되지 않습니다.
+         */
+        pageNumbers.push(1); // 첫 번째 페이지
+        pageNumbers.push(...pages.slice(totalPages - visiblePages)); // 마지막 페이지 근처
+      } else {
+        // 중간에 있을 때는 앞뒤 페이지만 표시하고 Ellipsis 추가
+        pageNumbers.push(1); // 첫 번째 페이지
+        pageNumbers.push(currentPage - 1); // 이전 페이지
+        pageNumbers.push(currentPage); // 현재 페이지
+        pageNumbers.push(currentPage + 1); // 다음 페이지
+        pageNumbers.push(totalPages); // 마지막 페이지
+      }
     }
+
+    // 중복 제거 (예: 같은 페이지 번호가 두 번 이상 나오지 않게)
+    const uniquePageNumbers = Array.from(new Set(pageNumbers));
+
+    // Ellipsis를 추가할 구간을 넣기 위한 작업
+    const finalPages: (number | string)[] = [];
+    uniquePageNumbers.forEach((page, index, arr) => {
+      finalPages.push(page);
+      // Ellipsis 처리: 페이지 번호가 연속되지 않으면 '...' 추가
+      if (index < arr.length - 1 && arr[index + 1] > page + 1) {
+        finalPages.push("...");
+      }
+    });
+
+    return finalPages;
   };
 
-  const handlePreviousGroup = () => handlePageChange(startPage - 1);
-  const handleNextGroup = () => handlePageChange(endPage + 1);
+  const visiblePages = renderPaginationItems();
+
+  // 디버깅: 현재 페이지 값과 totalPages, visiblePages 출력
+  console.log("totalPages:", totalPages);
+  console.log("currentPage:", currentPage);
+  console.log("visiblePages:", visiblePages);
+
+  const onPrev = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (currentPage > 1) handlePage(currentPage - 1);
+    else event.preventDefault(); // disabled일 때 클릭 방지
+  };
+
+  const onNext = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (currentPage < totalPages) handlePage(currentPage + 1);
+    else event.preventDefault(); // disabled일 때 클릭 방지
+  };
 
   return (
     <Pagination>
       <PaginationContent>
-        {/* 이전 그룹 이동 */}
         <PaginationItem>
           <PaginationPrevious
-            onClick={handlePreviousGroup}
-            // isDisabled={startPage === 1}
+            href="#"
+            onClick={onPrev}
+            disabled={currentPage <= 1}
           />
         </PaginationItem>
 
-        {/* 동적 페이지 버튼 */}
-        {Array.from({ length: endPage - startPage + 1 }, (_, i) => {
-          const pageNumber = startPage + i;
+        {visiblePages.map((page, index) => {
+          // Ellipsis일 경우에는 PaginationEllipsis 렌더링
+          if (page === "...") {
+            return (
+              <PaginationItem key={`ellipsis-${index}`}>
+                <PaginationEllipsis />
+              </PaginationItem>
+            );
+          }
+
+          // 페이지 번호가 숫자일 경우 PaginationLink 렌더링
           return (
-            <PaginationItem key={pageNumber}>
+            <PaginationItem key={`page-${page}`}>
               <PaginationLink
-                onClick={() => handlePageChange(pageNumber)}
-                isActive={page === pageNumber}
+                href="#"
+                isActive={page === currentPage}
+                onClick={() => handlePage(Number(page))}
               >
-                {pageNumber}
+                {page}
               </PaginationLink>
             </PaginationItem>
           );
         })}
 
-        {/* 다음 그룹 이동 */}
         <PaginationItem>
           <PaginationNext
-            onClick={handleNextGroup}
-            // isDisabled={endPage === TOTAL_PAGES}
+            href="#"
+            onClick={onNext}
+            disabled={currentPage === totalPages}
           />
         </PaginationItem>
       </PaginationContent>
