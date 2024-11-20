@@ -8,6 +8,7 @@ export interface Page {
 
 export interface BoardData {
   id: string;
+  isCompleted: boolean;
   title: string;
   from: Date | null;
   to: Date | null;

@@ -1,3 +1,4 @@
 export { Aside } from "./aside/Aside";
-export { CardBoard } from "./board/CardBoard";
-export { MarkdownEditorDialog } from "./board/ME-Dialog";
+export { BoardCard } from "./board/BoardCard";
+export { MarkDownEditorDialog } from "./board/ME-Dialog";
+export { NoBoard } from "./board/NoBoard";

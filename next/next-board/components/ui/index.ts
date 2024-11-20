@@ -10,6 +10,7 @@ export {
   CardContent,
 } from "./card/card";
 export { Checkbox } from "./checkbox/checkbox";
+export { DatePicker } from "./date-picker/date-picker";
 export {
   Dialog,
   DialogPortal,
@@ -22,8 +23,6 @@ export {
   DialogTitle,
   DialogDescription,
 } from "./dialog/dialog";
-export { BasicDatePicker } from "./date-picker/date-picker";
-export { LabelDatePicker } from "./date-picker/label-date-picker";
 export { Input } from "./input/input";
 export { SearchBar } from "./search-bar/search-bar";
 export { Separator } from "./separator/separator";

@@ -1,8 +1,8 @@
 "use client";
 
 import { CalendarSearch } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "../index";
-import { Calendar } from "../index";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover/popover";
+import { Calendar } from "../calendar/calendar";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -36,7 +36,7 @@ function DatePicker({ label, value, onSelect }: Props) {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="">{label}</label>
+      <label>{label}</label>
       <Popover>
         <PopoverTrigger asChild>
           <button className="w-40 bg-white text-black flex items-center justify-between gap-3 border px-3 py-2 rounded-sm focus:border-2 focus:border-neutral-500">

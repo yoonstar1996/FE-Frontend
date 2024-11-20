@@ -2,7 +2,7 @@ import { Button } from "@/components/ui";
 import { useCreatePages } from "@/hooks/useCreatePages";
 
 function InitPage() {
-  const { createPage } = useCreatePages();
+  // const createPage = useCreatePages();
 
   return (
     <main className="page__main">
@@ -22,7 +22,7 @@ function InitPage() {
         </div>
         <Button
           className="text-[#E79057] bg-transparent border border-[#E79057] hover:bg-[#FFF9F5] w-[180px]"
-          onClick={createPage}
+          // onClick={createPage}
         >
           Add New Page
         </Button>

@@ -1,68 +1,102 @@
 "use client";
 
+import { Dispatch, ReactNode, SetStateAction, useState } from "react";
+import MarkdownEditor from "@uiw/react-markdown-editor";
+
 import {
   Button,
   Checkbox,
+  DatePicker,
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  LabelDatePicker,
-  Separator,
 } from "@/components/ui";
-import MarkdownEditor from "@uiw/react-markdown-editor";
+import { BoardData, Page } from "@/app/types";
+import { useAtom } from "jotai";
+import { currentPageAtom } from "@/store";
 
 interface Props {
-  children: React.ReactNode;
+  children: ReactNode;
+  data: BoardData;
+  setData: Dispatch<SetStateAction<BoardData>>;
 }
 
-function MarkdownEditorDialog({ children }: Props) {
+function MarkDownEditorDialog({ children, data, setData }: Props) {
+  const [boardData] = useState(data);
+  const [markdown, setMarkdown] = useState<string>(data.contents);
+  const [currentPage, setCurrentPage] = useAtom<Page>(currentPageAtom);
+  const currentBoardIndex = currentPage.boards.findIndex(
+    (board) => board.id === data.id
+  );
+
+  const onSelectDate = (label: "from" | "to", date: Date) => {
+    // 시간 오프셋 계산
+    const offsetInMinutes = date.getTimezoneOffset();
+    const koreaTime = new Date(date.getTime() - offsetInMinutes * 60 * 1000);
+
+    currentPage.boards[currentBoardIndex][label] = koreaTime;
+    setCurrentPage({ ...currentPage });
+  };
+
+  const onClickDone = () => {
+    currentPage.boards[currentBoardIndex].contents = markdown;
+    setData({ ...boardData, contents: markdown });
+    setCurrentPage({ ...currentPage });
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
-        <DialogHeader className="flex flex-col">
-          <DialogTitle>
-            <div className="flex items-center justify-start gap-2">
-              <Checkbox className="h-5 w-5 min-w-5" />
-              <input
-                type="text"
-                placeholder="게시물의 제목을 입력해주세요."
-                className="w-full text-xl outline-none bg-transparent"
-              />
-            </div>
-          </DialogTitle>
-          <DialogDescription>
-            마크다운 에디터를 사용하여 TODO-BOARD를 예쁘게 꾸며보세요.
-          </DialogDescription>
+        <DialogHeader>
+          <div className="flex items-center mb-2 gap-2">
+            {/* 체크박스 */}
+            <Checkbox
+              className="w-5 h-5 border-neutral-400"
+              // onCheckedChange={(checked) => onCheck(checked)}
+              checked={boardData.isCompleted}
+            />
+            <DialogTitle className="font-semibold text-2xl">
+              {boardData.title || "title"}
+            </DialogTitle>
+          </div>
+          <div className="flex items-center gap-2">
+            <DatePicker
+              label="From"
+              value={boardData.from}
+              onSelect={onSelectDate}
+            />
+            <DatePicker
+              label="To"
+              value={boardData.to}
+              onSelect={onSelectDate}
+            />
+          </div>
         </DialogHeader>
-        <div className="flex items-center gap-5">
-          <LabelDatePicker label={"From"} />
-          <LabelDatePicker label={"To"} />
+        <div className="flex items-center justify-center">
+          {/* 에디터 영역 */}
+          <MarkdownEditor
+            value={markdown}
+            height="320px"
+            onChange={(value) => setMarkdown(value)}
+            className="w-full"
+          />
         </div>
-        <Separator />
-        {/* 마크다운 에디터 영역 */}
-        <MarkdownEditor className="h-[320px]" />
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="submit" variant={"outline"}>
-              취소
-            </Button>
+            <Button>Cancel</Button>
           </DialogClose>
-          <Button
-            type="submit"
-            className="text-white bg-[#E79057] hover:bg-[#E26F24] hover:ring-1 hover:ring-[#E26F24] hover:ring-offset-1 active:bg-[#D5753D] hover:shadow-lg"
-          >
-            등록
-          </Button>
+          <DialogClose asChild>
+            <Button onClick={onClickDone}>Done</Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-export { MarkdownEditorDialog };
+export { MarkDownEditorDialog };
