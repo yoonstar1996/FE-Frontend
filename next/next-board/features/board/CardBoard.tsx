@@ -1,48 +1,95 @@
 "use client";
 
 import { MarkdownEditorDialog } from "@/features";
-import { Button, Card, Checkbox, LabelDatePicker, Separator } from "@/components/ui";
+import {
+  Button,
+  Card,
+  Checkbox,
+  CustomButton,
+  LabelDatePicker,
+  Separator,
+} from "@/components/ui";
 import { ChevronUp } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useState } from "react";
+import MarkdownEditor from "@uiw/react-markdown-editor";
 
-function CardBoard() {
-    return (
-        <Card className="w-full flex flex-col items-center p-5">
-            {/* 게시물 카드 제목 영역*/}
-            <div className="w-full flex items-center justify-between mb-4">
-                <div className="flex items-center justify-start gap-2">
-                    <Checkbox className="h-5 w-5" />
-                    <input type="text" placeholder="제목 없음." className="text-xl outline-none bg-transparent" disabled={true} />
-                </div>
-                <Button variant={"ghost"} size={"icon"}>
-                    <ChevronUp className="text-[#6d6d6d]" />
-                </Button>
-            </div>
-            {/* 캘린더 및 버튼 박스 영역 */}
-            <div className="w-full flex items-center justify-between">
-                {/* 캘린더 박스 */}
-                <div className="flex items-center gap-5">
-                    <LabelDatePicker label={"From"} />
-                    <LabelDatePicker label={"To"} />
-                </div>
-                {/* 버튼 박스 */}
-                <div className="flex items-center">
-                    <Button variant={"ghost"} className="font-normal text-[#6D6D6D]">
-                        Duplicate
-                    </Button>
-                    <Button variant={"ghost"} className="font-normal text-rose-600 hover:text-rose-600 hover:bg-red-50">
-                        Delete
-                    </Button>
-                </div>
-            </div>
-            <Separator className="my-3" />
-            {/* Add Contents 버튼 영역 */}
-            <MarkdownEditorDialog>
-                <Button variant={"ghost"} className="font-normal text-[#6D6D6D]">
-                    Add Contents
-                </Button>
-            </MarkdownEditorDialog>
-        </Card>
-    );
+interface Props {
+  id?: number;
+}
+
+function CardBoard({ id }: Props) {
+  const [todos, setTodos] = useState([]);
+
+  const handleClickAddNewBoard = async () => {
+    const { data } = await supabase
+      .from("todos")
+      .update({
+        boards: [
+          {
+            // id: pathname,
+            // title: "",
+            // start_date: startDate,
+            // end_date: endDate,
+          },
+        ],
+      })
+      .eq("id", id)
+      .select();
+  };
+
+  return (
+    <div className="w-full bg-white flex flex-col gap-3 p-5 shadow-lg border border-neutral-100 rounded">
+      <div className="w-full flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          {/* 체크박스 */}
+          <Checkbox
+            className="w-5 h-5 border-neutral-400"
+            onCheckedChange={(checked) => onCheck(checked)}
+            checked={boardData.isCompleted}
+          />
+          <input
+            type="text"
+            placeholder="Board Title Here..."
+            className="font-semibold text-2xl outline-none"
+            value={boardData.title}
+            onChange={onChangeTitle}
+          />
+        </div>
+        <ChevronUp className="w-5 text-neutral-400" />
+      </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <DatePicker
+            label="From"
+            value={boardData.from}
+            onSelect={onSelectDate}
+          />
+          <DatePicker label="To" value={boardData.to} onSelect={onSelectDate} />
+        </div>
+        <div className="flex items-center">
+          <CustomButton onClick={onClickDuplicate}>Duplicate</CustomButton>
+          <CustomButton
+            onClick={onClickDelete}
+            className="text-red-500 hover:bg-red-100"
+          >
+            Delete
+          </CustomButton>
+        </div>
+      </div>
+      <Separator orientation="horizontal" />
+      {/* 컨텐츠 영역 */}
+      <div>
+        <MarkdownEditor.Markdown source={boardData.contents} />
+      </div>
+      {/* Add contents 버튼 */}
+      <MarkdownEditorDialog data={boardData} setData={setBoardData}>
+        <CustomButton className="w-full" type="text">
+          Add Contents
+        </CustomButton>
+      </MarkdownEditorDialog>
+    </div>
+  );
 }
 
 export { CardBoard };
