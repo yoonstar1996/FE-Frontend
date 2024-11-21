@@ -112,7 +112,7 @@ function BoardPage() {
   const getData = async () => {
     const { data } = await supabase.from("todos-sf").select("*").eq("id", id);
 
-    console.log("getData: ", data.boards);
+    console.log(data);
     if (data !== null) {
       setTask(data[0]);
       setTitle(data[0].title);
