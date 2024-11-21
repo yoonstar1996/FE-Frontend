@@ -7,6 +7,7 @@ import { pagesAtom } from "@/store";
 import { useAtom } from "jotai";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { PageLists } from "./PageLists";
 
 function Aside() {
   const [pages, setPages] = useAtom(pagesAtom);
@@ -62,21 +63,7 @@ function Aside() {
         Add New Page
       </Button>
       {/* TODO 목록 UI 하나 */}
-      <div className="flex flex-col mt-4 gap-2">
-        <small className="text-sm font-medium leading-none text-[#A6A6A6]">
-          {"Yoonstar's"}
-        </small>
-        <ul className="flex flex-col">
-          <li className="flex items-center gap-2 py-2 px-[10px] bg-[#F5F5F5] rounded-sm text-sm">
-            <div className="h-[6px] w-[6px] rounded-full bg-[#00F38D]"></div>
-            Enter Title
-          </li>
-          <li className="flex items-center gap-2 py-2 px-[10px] bg-[#F5F5F5] rounded-sm text-sm">
-            <div className="h-[6px] w-[6px] rounded-full bg-[#00F38D]"></div>
-            Enter Title
-          </li>
-        </ul>
-      </div>
+      <PageLists />
     </aside>
   );
 }

@@ -21,6 +21,23 @@ function BoardPage() {
   const [currentPage, setCurrentPage] = useAtom(currentPageAtom);
   const { id } = useParams();
 
+  const fetchPage = async () => {
+    try {
+      const { data, status } = await supabase
+        .from("todos")
+        .select()
+        .eq("id", id);
+
+      console.log("페이지 이동 후 데이터 받기", data);
+
+      if (status === 200 && data) {
+        setCurrentPage(data[0]);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const onChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
     setCurrentPage((prev) => ({ ...prev, title: input }));
@@ -46,6 +63,7 @@ function BoardPage() {
         .select();
       if (status === 200 && data) {
         setCurrentPage(data[0]);
+        fetchPage();
       }
     } catch (error) {
       console.error(error);
@@ -65,7 +83,15 @@ function BoardPage() {
     newBoards.push(boardContent);
     setCurrentPage({ ...currentPage, boards: newBoards });
   };
-  // console.log(currentPage);
+
+  const onDeleteBoard = async () => {
+    try {
+      await supabase.from("todos").update({ boards: [] }).eq("id", id).select();
+      fetchPage();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const boardsCount = useMemo(() => {
     return currentPage.boards ? currentPage.boards.length : 0;
@@ -84,21 +110,6 @@ function BoardPage() {
     boardsCount === 0 ? 0 : (completedCount / boardsCount) * 100;
 
   useEffect(() => {
-    const fetchPage = async () => {
-      try {
-        const { data, status } = await supabase
-          .from("todos")
-          .select()
-          .eq("id", id);
-
-        if (status === 200 && data) {
-          setCurrentPage(data[0]);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
     fetchPage();
   }, [id, setCurrentPage]);
 
@@ -109,9 +120,18 @@ function BoardPage() {
           <Button variant={"outline"} size={"icon"}>
             <ChevronLeft />
           </Button>
-          <Button variant={"secondary"} onClick={onSave}>
-            저장
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant={"secondary"} onClick={onSave}>
+              저장
+            </Button>
+            <Button
+              variant={"secondary"}
+              className="text-rose-600 hover:bg-rose-50"
+              onClick={onDeleteBoard}
+            >
+              삭제
+            </Button>
+          </div>
         </div>
         <div className={styles.header__top}>
           {/* 제목 입력 Input 섹션 */}
@@ -153,14 +173,16 @@ function BoardPage() {
         </div>
       </div>
 
-      <div className="w-full py-7 px-4 flex flex-col gap-5">
+      <div className="w-full h-full py-7 px-4 flex flex-col gap-5">
         {/* Add New Board 버튼 클릭으로 인한 Board 데이터가 있을 경우 */}
         {currentPage && currentPage.boards.length ? (
           currentPage.boards.map((board) => (
             <BoardCard key={board.id} data={board} />
           ))
         ) : (
+          // <div className="h-full">
           <NoBoard />
+          // </div>
         )}
       </div>
     </main>

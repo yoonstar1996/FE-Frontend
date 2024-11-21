@@ -99,8 +99,11 @@ function BoardCard({ data }: Props) {
           <DatePicker label="To" value={boardData.to} onSelect={onSelectDate} />
         </div>
         <div className="flex items-center">
-          <Button onClick={onClickDuplicate}>Duplicate</Button>
+          <Button variant={"ghost"} onClick={onClickDuplicate}>
+            Duplicate
+          </Button>
           <Button
+            variant={"ghost"}
             onClick={onClickDelete}
             className="text-red-500 hover:bg-red-100"
           >
@@ -115,7 +118,9 @@ function BoardCard({ data }: Props) {
       </div>
       {/* Add contents 버튼 */}
       <MarkDownEditorDialog data={boardData} setData={setBoardData}>
-        <Button className="w-full">Add Contents</Button>
+        <Button className="w-full" variant={"ghost"}>
+          Add Contents
+        </Button>
       </MarkDownEditorDialog>
     </div>
   );

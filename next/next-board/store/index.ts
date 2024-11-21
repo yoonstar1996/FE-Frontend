@@ -15,6 +15,7 @@ export const defaultBoard: BoardData = {
   from: null,
   to: null,
   contents: "",
+  isCompleted: false,
 };
 
 export const pagesAtom = atom<Page[]>([]);
