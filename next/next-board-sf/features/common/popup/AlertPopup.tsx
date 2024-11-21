@@ -13,18 +13,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui";
+} from "@/shared/ui";
 
 interface Props {
   children: React.ReactNode;
 }
+
 function AlertPopup({ children }: Props) {
-  const router = useRouter();
   const { id } = useParams();
+  const router = useRouter();
   const { toast } = useToast();
 
-  /** 전체 삭제 버튼 클릭 시 */
-  const onDeleteAll = async () => {
+  /** 전체 삭제 */
+  const handleDeleteAll = async () => {
     const { status } = await supabase
       .from("todos-sf")
       .delete()
@@ -48,14 +49,14 @@ function AlertPopup({ children }: Props) {
             해당 TASK를 정말로 삭제하시겠습니까?
           </AlertDialogTitle>
           <AlertDialogDescription>
-            이 작업은 취소할 수 없습니다.
+            이 작업이 실행되면 다시 취소할 수 없습니다.
             <br /> 삭제가 진행되면 귀하의 게시물은 영구적으로 삭제됩니다.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>취소</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onDeleteAll}
+            onClick={handleDeleteAll}
             className="bg-red-600 hover:bg-rose-600"
           >
             삭제
