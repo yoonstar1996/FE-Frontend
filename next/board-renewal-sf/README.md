@@ -22,6 +22,7 @@
 - SASS/SCSS 설치: `npm i sass`
 - React 마크다운 에디터 설치: `npm i @uiw/react-markdown-editor`
 - Supabase 연동을 위한 라이브러리 설치: `npm install @supabase/supabase-js`
+- nanoid 설치: `npm install nanoid`
 
 2. 프로젝트 구조
 
