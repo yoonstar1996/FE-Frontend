@@ -88,10 +88,6 @@ function BoardPage() {
     getTask();
   }, []);
 
-  useEffect(() => {
-    console.log(task);
-  }, [task]);
-
   return (
     <>
       <div className={styles.header}>
