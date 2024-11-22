@@ -36,6 +36,7 @@ export {
 } from "./card/card";
 export { Checkbox } from "./checkbox/checkbox";
 export { Input } from "./input/input";
+export { SearchBar } from "./input/search-bar";
 export {
   Popover,
   PopoverTrigger,
