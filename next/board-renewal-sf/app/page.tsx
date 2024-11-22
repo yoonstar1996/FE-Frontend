@@ -1,3 +1,4 @@
+/** UI 컴포넌트 */
 import { Button } from "@/components/ui";
 
 function InitPage() {

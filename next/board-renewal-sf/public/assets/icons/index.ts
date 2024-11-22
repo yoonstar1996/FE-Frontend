@@ -1,3 +1,4 @@
-import { ChevronLeft } from "lucide-react";
+import { ChevronUp, ChevronLeft } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 
-export { ChevronLeft };
+export { ChevronUp, ChevronLeft, CalendarIcon };

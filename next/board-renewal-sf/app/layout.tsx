@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/toast/toaster";
+/** UI 컴포넌트 */
 import { AsideSection } from "@/components/common";
 /** 폰트 */
 import { FONT_NOTOSANSKR } from "@/public/assets/fonts";

@@ -2,6 +2,9 @@ export { AlertDialog, AlertDialogPortal, AlertDialogOverlay, AlertDialogTrigger,
 export { Button, buttonVariants } from "./button/button";
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from "./card/card";
 export { Checkbox } from "./checkbox/checkbox";
+export { Calendar } from "./date-picker/calendar";
+export { Dialog, DialogPortal, DialogOverlay, DialogClose, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "./dialog/dialog";
+export { LabelDatePicker } from "./date-picker/LabelDatePicker";
 export { Input } from "./input/input";
 export { Popover, PopoverTrigger, PopoverContent } from "./popover/popover";
 export { Progress } from "./progress/progress";
