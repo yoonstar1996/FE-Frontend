@@ -1,5 +1,4 @@
 /** UI 컴포넌트 */
-import { MarkdownEditorDialog } from "@/components/common";
 import {
   Button,
   Card,
@@ -8,6 +7,7 @@ import {
   Separator,
 } from "@/components/ui";
 import { ChevronUp } from "@/public/assets/icons";
+import { MarkdownEditorDialog } from "@/components/common";
 
 function BoardCard() {
   return (
