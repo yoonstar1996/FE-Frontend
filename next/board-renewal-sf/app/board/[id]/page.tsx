@@ -1,78 +1,83 @@
 "use client";
 
 import Image from "next/image";
-/** UI 컴포넌트 */
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { nanoid } from "nanoid";
+import { Board } from "@/types";
 import { AlertPopup, BoardCard } from "@/components/common";
 import { Button, Progress, LabelDatePicker } from "@/components/ui";
-import { ChevronLeft } from "lucide-react";
-/** 스타일 */
 import styles from "./page.module.scss";
-import { useEffect, useState } from "react";
+import { ChevronLeft } from "lucide-react";
+import { useCreateBoard, useGetTaskById, useGetTasks } from "@/hooks/api";
 import { supabase } from "@/lib/supabase";
-import { useParams } from "next/navigation";
-import { Board, Task } from "@/types";
-import { nanoid } from "nanoid";
 import { useToast } from "@/hooks/use-toast";
 
 function BoardPage() {
-  const { toast } = useToast();
   const { id } = useParams();
-  const [task, setTask] = useState<Task>();
-  const [boards, setBoards] = useState<Board[]>(task?.boards || []);
+  const { getTasks } = useGetTasks();
+  const { task } = useGetTaskById(Number(id));
+  const router = useRouter();
 
-  const getTask = async () => {
-    try {
-      const { data, status } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("id", id);
+  const { toast } = useToast();
+  const createBoard = useCreateBoard();
 
-      if (data !== null && status === 200) {
-        setTask(data[0]);
-      }
-    } catch (error) {
-      console.log("error: ", error);
-      toast({
-        title: "ERROR 발생",
-        description: "콘솔 확인.",
-        variant: "destructive",
-      });
-    }
-  };
+  // board의 상태 값
+  const [title, setTitle] = useState("");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [count, setCount] = useState(0);
+  const [boards, setBoards] = useState<Board[]>([]);
 
   const handleAddBoard = () => {
     const newBoard: Board = {
       id: nanoid(),
       title: "",
-      startDate: null,
-      endDate: null,
+      startDate: undefined,
+      endDate: undefined,
       content: "",
       isCompleted: false,
     };
+    const newBoards = [...boards, newBoard];
 
-    setBoards((prevBoards) => [...prevBoards, newBoard]);
-    updateTaskOneColumnById(Number(id), "boards", [...boards, newBoard]);
+    setBoards(newBoards);
+    createBoard(Number(id), "boards", newBoards);
   };
 
-  const updateTaskOneColumnById = async (
-    uid: number,
-    column: string,
-    newValue: unknown
-  ) => {
-    try {
-      const { data, status } = await supabase
-        .from("tasks")
-        .update({ [column]: newValue })
-        .eq("id", uid)
-        .select();
+  const handleSave = async () => {
+    if (!title || !startDate || !endDate) {
+      toast({
+        title: "기입되지 않은 값이 있습니다.",
+        description: "모든 값을 입력해주세요.",
+      });
+      return;
+    }
 
-      console.log(data, newValue);
+    try {
+      const { data, status, error } = await supabase
+        .from("tasks")
+        .update({
+          title,
+          start_date: startDate,
+          end_date: endDate,
+        })
+        .eq("id", id)
+        .select();
 
       if (data !== null && status === 200) {
         toast({
-          title: "새로운 boards 생성 완료",
+          title: "task 저장 완료",
+          description: "마감일을 지켜주세요.",
         });
-        getTask();
+        getTasks();
+      }
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "ERROR 발생",
+          description: `supabase 오류: ${error.message || "알 수 없는 오류"}`,
+        });
       }
     } catch (error) {
       console.log("error: ", error);
@@ -85,18 +90,38 @@ function BoardPage() {
   };
 
   useEffect(() => {
-    getTask();
-  }, []);
+    if (task) {
+      setTitle(task.title || "");
+      setStartDate(task.start_date ? new Date(task.start_date) : undefined);
+      setEndDate(task.end_date ? new Date(task.end_date) : undefined);
+      setBoards(task.boards);
+    }
+  }, [task]);
+
+  useEffect(() => {
+    if (task?.boards) {
+      const completedCount = task.boards.filter(
+        (board: Board) => board.isCompleted
+      ).length;
+      setCount(completedCount);
+    }
+  }, [task?.boards]);
 
   return (
     <>
       <div className={styles.header}>
         <div className={styles[`header__btn-box`]}>
-          <Button variant={"outline"} size={"icon"}>
+          <Button
+            variant={"outline"}
+            size={"icon"}
+            onClick={() => router.push("/")}
+          >
             <ChevronLeft />
           </Button>
           <div className="flex items-center gap-2">
-            <Button variant={"secondary"}>저장</Button>
+            <Button variant={"secondary"} onClick={handleSave}>
+              저장
+            </Button>
             <AlertPopup>
               <Button className="text-rose-600 bg-red-50 hover:bg-rose-50">
                 삭제
@@ -110,20 +135,37 @@ function BoardPage() {
             type="text"
             placeholder="Enter Title Here!"
             className={styles.header__top__input}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
           {/* 진행상황 척도 그래프 섹션 */}
           <div className="flex items-center justify-start gap-4">
             <small className="text-sm font-medium leading-none text-[#6D6D6D]">
-              1/10 Completed
+              {count}/{task?.boards.length} Completed
             </small>
-            <Progress className="w-60 h-[10px]" value={33} />
+            <Progress
+              className="w-60 h-[10px]"
+              value={
+                task && task.boards.length > 0
+                  ? (count / task.boards.length) * 100
+                  : 0
+              }
+            />
           </div>
         </div>
         {/* 캘린더 + Add New Board 버튼 섹션 */}
         <div className={styles.header__bottom}>
           <div className="flex items-center gap-5">
-            <LabelDatePicker label={"From"} />
-            <LabelDatePicker label={"To"} />
+            <LabelDatePicker
+              label={"From"}
+              value={startDate}
+              onChange={setStartDate}
+            />
+            <LabelDatePicker
+              label={"To"}
+              value={endDate}
+              onChange={setEndDate}
+            />
           </div>
           <Button
             className="text-white bg-[#E79057] hover:bg-[#E26F24] hover:ring-1 hover:ring-[#E26F24] hover:ring-offset-1 active:bg-[#D5753D] hover:shadow-lg"
@@ -137,7 +179,7 @@ function BoardPage() {
         {boards.length !== 0 ? (
           <div className={styles.body__isData}>
             {boards.map((board: Board) => {
-              return <BoardCard key={board.id} />;
+              return <BoardCard key={board.id} board={board} />;
             })}
           </div>
         ) : (

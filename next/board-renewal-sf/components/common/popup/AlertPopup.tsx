@@ -1,6 +1,5 @@
 "use client";
 
-/** UI 컴포넌트 */
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,37 +11,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
-import { useParams, useRouter } from "next/navigation";
+import { useDeleteTask } from "@/hooks/api";
 
 interface Props {
   children: React.ReactNode;
 }
 
 function AlertPopup({ children }: Props) {
-  const { id } = useParams();
-  const { toast } = useToast();
-  const router = useRouter();
-
-  const handleDeleteTask = async () => {
-    try {
-      const { status } = await supabase.from("tasks").delete().eq("id", id);
-      if (status === 204) {
-        router.push("/");
-        toast({
-          title: "삭제 완료",
-        });
-      }
-      console.log(status);
-    } catch (error) {
-      console.log("error: ", error);
-      toast({
-        title: "에러 발생",
-        variant: "destructive",
-      });
-    }
-  };
+  const handleDeleteTask = useDeleteTask();
 
   return (
     <AlertDialog>

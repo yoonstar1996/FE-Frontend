@@ -1,11 +1,10 @@
 "use client";
 
-/** UI 컴포넌트 */
 import { Button } from "@/components/ui";
-import { useCreateTask } from "@/hooks/useCreateTask";
+import { useCreateTask } from "@/hooks/api";
 
 function InitPage() {
-  const { handleCreateTask } = useCreateTask();
+  const handleCreateTasks = useCreateTask();
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
@@ -24,7 +23,7 @@ function InitPage() {
       </div>
       <Button
         className="text-[#E79057] bg-transparent border border-[#E79057] hover:bg-[#FFF9F5] w-[180px]"
-        onClick={handleCreateTask}
+        onClick={handleCreateTasks}
       >
         Add New Page
       </Button>

@@ -1,40 +1,67 @@
 "use client";
 
-/** UI 컴포넌트 */
 import { Button, SearchBar } from "@/components/ui";
-import { useCreateTask } from "@/hooks/useCreateTask";
+import { useCreateTask, useGetTasks } from "@/hooks/api";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 import { Task } from "@/types";
-import { getAllTasks } from "@/utils";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 function AsideSection() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const { handleCreateTask } = useCreateTask();
   const { id } = useParams();
+  const { tasks, setTasks, getTasks } = useGetTasks();
+  const handleCreateTasks = useCreateTask();
+  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      try {
+        const { data, status, error } = await supabase
+          .from("tasks")
+          .select("*")
+          .ilike("title", `%${searchTerm}%`);
+
+        if (data && status === 200) {
+          setTasks(data); // jotai의 tasksAtom 상태를 업데이트
+        }
+
+        if (error) {
+          toast({
+            variant: "destructive",
+            title: "ERROR 발생",
+            description: `supabase 오류: ${error.message || "알 수 없는 오류"}`,
+          });
+        }
+      } catch (error) {
+        console.log("error: ", error);
+        toast({
+          title: "ERROR 발생",
+          description: "콘솔 확인.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const tasks = await getAllTasks();
-        setTasks(tasks);
-      } catch (error) {
-        console.error("error: ", error);
-      }
-    };
-
-    fetchTasks();
+    getTasks();
   }, [id]);
 
   return (
     <aside className="page__aside">
       {/* 검색창 UI */}
-      <SearchBar placeholder="검색어를 입력하세요." />
+      <SearchBar
+        placeholder="검색어를 입력하세요."
+        onKeyDown={handleSearch}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
       {/* Add New Page 버튼 UI */}
       <Button
         className="text-[#E79057] bg-white border border-[#E79057] hover:bg-[#FFF9F5]"
-        onClick={handleCreateTask}
+        onClick={handleCreateTasks}
       >
         Add New Page
       </Button>
