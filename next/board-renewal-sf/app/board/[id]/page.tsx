@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { nanoid } from "nanoid";
 import { Board } from "@/types";
-import { AlertPopup, BoardCard } from "@/components/common";
+import { DeleteTask, BoardCard } from "@/components/common";
 import { Button, Progress, LabelDatePicker } from "@/components/ui";
 import styles from "./page.module.scss";
 import { ChevronLeft } from "lucide-react";
@@ -13,7 +13,7 @@ import { useCreateBoard, useGetTaskById, useGetTasks } from "@/hooks/api";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
-function BoardPage() {
+function BoardDetailPage() {
   const { id } = useParams();
   const { getTasks } = useGetTasks();
   const { task } = useGetTaskById(Number(id));
@@ -122,11 +122,11 @@ function BoardPage() {
             <Button variant={"secondary"} onClick={handleSave}>
               저장
             </Button>
-            <AlertPopup>
+            <DeleteTask>
               <Button className="text-rose-600 bg-red-50 hover:bg-rose-50">
                 삭제
               </Button>
-            </AlertPopup>
+            </DeleteTask>
           </div>
         </div>
         <div className={styles.header__top}>
@@ -205,4 +205,4 @@ function BoardPage() {
   );
 }
 
-export default BoardPage;
+export default BoardDetailPage;

@@ -17,7 +17,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-function AlertPopup({ children }: Props) {
+function DeleteTask({ children }: Props) {
   const handleDeleteTask = useDeleteTask();
 
   return (
@@ -47,4 +47,4 @@ function AlertPopup({ children }: Props) {
   );
 }
 
-export { AlertPopup };
+export { DeleteTask };
