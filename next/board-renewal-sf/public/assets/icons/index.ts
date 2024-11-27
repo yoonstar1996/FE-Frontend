@@ -1,9 +1,23 @@
 import {
+  BadgeCheck,
   ChevronUp,
   ChevronLeft,
+  ChevronsUpDown,
   CalendarIcon,
   Eye,
   EyeOff,
+  LogOut,
+  User2,
 } from "lucide-react";
 
-export { ChevronUp, ChevronLeft, CalendarIcon, Eye, EyeOff };
+export {
+  BadgeCheck,
+  ChevronUp,
+  ChevronLeft,
+  ChevronsUpDown,
+  CalendarIcon,
+  Eye,
+  EyeOff,
+  LogOut,
+  User2,
+};

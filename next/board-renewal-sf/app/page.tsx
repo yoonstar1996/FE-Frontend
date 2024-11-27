@@ -13,7 +13,7 @@ import {
 } from "@/components/ui";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Eye, EyeOff } from "@/public/assets/icons/index";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -67,14 +67,19 @@ function LoginPage() {
         toast({
           title: "로그인 성공!",
         });
+        const userData = {
+          id: data.user?.id || "",
+          email: data.user?.email || "",
+          phoneNumber: data.user?.user_metadata.phoneNumber || "",
+          nickname: data.user?.user_metadata.nickname || "",
+          imgUrl: "/assets/images/profile.jpg",
+        };
+        document.cookie = `user=${JSON.stringify(
+          userData
+        )}; path=/; max-age=3600`;
+
         router.push("/board");
-        // id, email, phone
-        setUser({
-          id: data.user.id || "",
-          email: data.user.email || "",
-          phone: data.user.phone || "",
-          imgUrl: "/assets/images/profile.png",
-        });
+        setUser(userData);
       }
     } catch (error) {
       console.error("error: ", error);
@@ -96,6 +101,12 @@ function LoginPage() {
   const handleClickShowPasswordButton = () => {
     setShowPassword((prev) => !prev);
   };
+
+  useEffect(() => {
+    /** 로컬스토리지에 user 데이터 유무 체크 후 리다이렉션 */
+    const user = localStorage.getItem("user");
+    if (user) router.push("/board");
+  }, [router]);
 
   return (
     <div className="page">

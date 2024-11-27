@@ -3,11 +3,12 @@
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { useAtom } from "jotai";
-import { tasksAtom } from "@/stores/atom";
+import { useAtom, useAtomValue } from "jotai";
+import { tasksAtom, userAtom } from "@/stores/atom";
 
 const useCreateTask = () => {
   const router = useRouter();
+  const user = useAtomValue(userAtom);
   const { toast } = useToast();
   const [, setTasks] = useAtom(tasksAtom);
 
@@ -15,7 +16,15 @@ const useCreateTask = () => {
     try {
       const { data, status, error } = await supabase
         .from("tasks")
-        .insert([{ title: null, start_date: null, end_date: null, boards: [] }])
+        .insert([
+          {
+            user_id: user?.id,
+            title: null,
+            start_date: null,
+            end_date: null,
+            boards: [],
+          },
+        ])
         .select();
 
       if (data && status === 201) {

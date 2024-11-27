@@ -18,6 +18,7 @@ export interface Board {
 export interface User {
   id: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
+  nickname: string;
   imgUrl: string;
 }

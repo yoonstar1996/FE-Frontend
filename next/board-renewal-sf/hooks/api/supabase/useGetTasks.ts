@@ -9,12 +9,16 @@ const useGetTasks = () => {
   const { toast } = useToast();
   const [tasks, setTasks] = useAtom(tasksAtom);
 
+  const userData = localStorage.getItem("user");
+  const user = userData ? JSON.parse(userData) : null;
+
   const getTasks = async () => {
     try {
       const { data, status, error } = await supabase
         .from("tasks")
         .select("*")
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true })
+        .eq("user_id", user?.id);
 
       if (data && status === 200) setTasks(data);
 

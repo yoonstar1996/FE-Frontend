@@ -2,8 +2,6 @@
 
 import { Button, SearchBar } from "@/components/ui";
 import { useCreateTask, useGetTasks } from "@/hooks/api";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
 import { Task } from "@/types";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -11,43 +9,19 @@ import { useEffect, useState } from "react";
 import { NavUser } from "./NavUser";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/stores/atom";
+import { useSearch } from "@/hooks/api/supabase/useSearch";
 
 function AsideSection() {
   const { id } = useParams();
-  const { tasks, setTasks, getTasks } = useGetTasks();
+  const { tasks, getTasks } = useGetTasks();
+  const { search } = useSearch();
   const handleCreateTasks = useCreateTask();
-  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const user = useAtomValue(userAtom); // useAtomValue: read
 
-  const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      try {
-        const { data, status, error } = await supabase
-          .from("tasks")
-          .select("*")
-          .ilike("title", `%${searchTerm}%`);
-
-        if (data && status === 200) {
-          setTasks(data); // jotai의 tasksAtom 상태를 업데이트
-        }
-
-        if (error) {
-          toast({
-            variant: "destructive",
-            title: "ERROR 발생",
-            description: `supabase 오류: ${error.message || "알 수 없는 오류"}`,
-          });
-        }
-      } catch (error) {
-        console.log("error: ", error);
-        toast({
-          title: "ERROR 발생",
-          description: "콘솔 확인.",
-          variant: "destructive",
-        });
-      }
-    }
+  const handleSearch = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") search(searchTerm);
+    else return;
   };
 
   useEffect(() => {
@@ -72,8 +46,11 @@ function AsideSection() {
         </Button>
         {/* TODO 목록 UI 하나 */}
         <div className="flex flex-col mt-4 gap-2">
-          <small className="text-sm font-medium leading-none text-neutral-800">
-            {"Yoonstar's"}
+          <small className="text-sm font-medium leading-none text-[#A6A6A6]">
+            <span className="text-neutral-700">
+              {user?.nickname ? user?.nickname : "알 수 없음님"}
+            </span>
+            의 TODO-BOARD
           </small>
           <ul className="flex flex-col">
             {tasks.length === 0 ? (
